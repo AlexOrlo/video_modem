@@ -5,7 +5,7 @@
 #include <string.h>
 
 #define SETTINGS_WORDS  (sizeof(settingT))/4
-#define MY_FLASH_PAGE_ADDR    0x801FC00
+#define MY_FLASH_PAGE_ADDR    0x801F800
 
 extern void FLASH_PageErase(uint32_t PageAddress);
 

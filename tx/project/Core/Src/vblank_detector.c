@@ -97,7 +97,7 @@ void startVideoSystemDetection(){
     HAL_ADC_Stop(&hadc1);
     HAL_ADC_MspDeInit(&hadc1);
     
-    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_val_min*1.3f);
+    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_val_min*1.75f);
     
     maxDetections=0;
     inTest=true;

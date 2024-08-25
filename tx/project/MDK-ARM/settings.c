@@ -10,13 +10,6 @@ static void myFlashErase(uint32_t PageAddress){
   HAL_FLASH_Lock();
 }
 
-static void FLASH_Erase(void){
-  HAL_FLASH_Unlock(); 
-  myFlashErase(MY_FLASH_PAGE_ADDR);
-  HAL_FLASH_Lock();
-}
-
-
 void FLASH_WriteSettings(void) {
     myFlashErase(MY_FLASH_PAGE_ADDR);
     HAL_FLASH_Unlock(); 
@@ -66,6 +59,7 @@ void flash_init(){
         setting.crsf_frames.attitude = true;
         setting.crsf_frames.flight_mode = false;
         
+        FLASH_WriteSettings();
     }
 }
     

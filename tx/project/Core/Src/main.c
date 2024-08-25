@@ -64,11 +64,12 @@ int main(void)
     MX_USART3_UART_Init();
     flash_init();
     
+    HAL_Delay(500);
     HAL_ADC_Start(&hadc1); 
     HAL_ADC_PollForConversion(&hadc1, 100); 
     uint32_t a = HAL_ADC_GetValue(&hadc1);
     HAL_ADC_Stop(&hadc1);
-    if(a>700)
+    if(a>3000)
     {
         CLI_Mode = true;
         shell_init(&huart1);
@@ -87,7 +88,7 @@ int main(void)
     //Start OPAMP's
     HAL_OPAMP_Start(&hopamp1);
     //VBLANK detection module init
-    HAL_Delay(1000);
+    HAL_Delay(3000); // delay for insure that camera start to work
     vblankInit();
     
     //Check video system
@@ -154,8 +155,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
         
         if(CLI_Mode)
         {
+            HAL_ResumeTick();
+            
             for(int tmpFor=start; tmpFor<length+start; tmpFor++)
                 shell_encode(dma_rx_bufu1[tmpFor&0x3FF]);
+            
+            HAL_SuspendTick();
             return;
         }
             

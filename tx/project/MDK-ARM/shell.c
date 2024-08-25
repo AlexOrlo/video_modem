@@ -304,6 +304,8 @@ static void shell_take_action(){
       sendStringToCom("argument avalible: vario, baro_alt, gps, link, battery, attitude, flight_mode\r");
       sendStringToCom("\r");
       sendStringToCom("set_uart_speed argument      telemetry uart speed\r");
+      sendStringToCom("\r");
+      sendStringToCom("get_status: show current settings\r");
   }
   
   

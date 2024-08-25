@@ -73,7 +73,7 @@ void Error_Handler(void);
 #define LED_ERROR_TOGGLE     LED_ERROR_GPIO_Port->BSRR = ((LED_ERROR_GPIO_Port->ODR & LED_ERROR_Pin) << 16U) | (~LED_ERROR_GPIO_Port->ODR & LED_ERROR_Pin)
 
 
-#define __DEBUG
+//#define __DEBUG
 
 #ifdef __cplusplus
 }

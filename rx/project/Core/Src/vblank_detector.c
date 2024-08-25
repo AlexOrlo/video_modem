@@ -2,18 +2,17 @@
 #include "main.h"
 
 
-#define DMA_BUFER_SIZE          20 
+#define DMA_BUFER_SIZE          100 
 
 #define TIMER_27_USEC_INTERVAL    300   
 #define TIMER_2_5_USEC_INTERVAL   15 
 
-#define V_REFERECE (uint32_t)(((float)4096/(float)3300)*(float)290)        //290
-#define V_REFERECE_UART (uint32_t)(((float)4096/(float)3300)*(float)1010)        //1000mv
+#define V_REFERECE (uint32_t)(((float)4096/(float)3300)*(float)372)        //290
+#define V_REFERECE_UART (uint32_t)(((float)4096/(float)3300)*(float)(944*2))        //1176
 
-void UART3_Receive_One_Byte(void);
-void raisingVblank(void);
-void signalFail(void);
-void resetCommunication(void);
+static void UART3_Receive_One_Byte(void);
+static void raisingVblank(void);
+static void resetCommunication(void);
 static void stopVideoSystemDetection();
 
 extern TIM_HandleTypeDef htim3; //timer for vblanc periods calculation
@@ -66,13 +65,13 @@ void vblankInit(){
 }
 
 
-__attribute__ ((section("CCM_DATA")))
-void signalFail(){
-    resetCommunication(); 
-}
+//__attribute__ ((section("CCM_DATA")))
+//void signalFail(){
+//    resetCommunication(); 
+//}
 
 __attribute__ ((section("CCM_DATA")))
-void resetCommunication(){
+static void resetCommunication(){
     uartBufCounter=0;
     longLowDetectedCount=0;
     shortLowDetectedCount=0;
@@ -82,6 +81,7 @@ void resetCommunication(){
 void startVideoSystemDetection(){
     uint32_t adc_val = 0;
     uint32_t adc_val_min = 999999;
+    uint32_t adc_val_max = 0;
     HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
     for(int i=0; i<299999; i++)
     {
@@ -90,11 +90,15 @@ void startVideoSystemDetection(){
         adc_val = HAL_ADC_GetValue(&hadc1);
         if(adc_val<adc_val_min)
             adc_val_min = adc_val;
+        if(adc_val>adc_val_max)
+            adc_val_max = adc_val;
     }        
     HAL_ADC_Stop(&hadc1);
+    
     HAL_ADC_MspDeInit(&hadc1);
     
-    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_val_min*1.3f);
+    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_val_min*1.75);
+    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, adc_val_min+((adc_val_max-adc_val_min)*0.6));
     
     maxDetections=0;
     inTest=true;
@@ -163,12 +167,12 @@ void TIM3_IRQHandler(void)
 
 
 __attribute__ ((section("CCM_DATA")))
-void raisingVblank(){
+static void raisingVblank(){
     if(counter>TIMER_27_USEC_INTERVAL){                                                                                             //Detect long low pulse
         longLowDetectedCount++;
         shortLowDetectedCount=0;
         if(longLowDetectedCount>LONG_DETECTIONS){                                                                                   //Check how many long pulses, if more that LONG_DETECTIONS => signal if fail
-            signalFail();
+            resetCommunication();
         }
     }else if( counter > TIMER_2_5_USEC_INTERVAL && longLowDetectedCount==LONG_DETECTIONS){          //detect short low pulses
         shortLowDetectedCount++;
@@ -181,13 +185,13 @@ void raisingVblank(){
             resetCommunication();
         }
     }else{                                                                                                                          
-        signalFail();
+        resetCommunication();
     }
 }
 
 
 __attribute__ ((section("CCM_DATA")))
-void UART3_Receive_One_Byte(void){
+static void UART3_Receive_One_Byte(void){
       LL_USART_Enable(USART3);
       LL_USART_EnableIT_RXNE(USART3);
       LL_USART_EnableIT_ERROR(USART3);
@@ -201,7 +205,6 @@ void USART3_IRQHandler(void)
        !LL_USART_IsActiveFlag_FE(USART3)   &&  !LL_USART_IsActiveFlag_NE(USART3) && 
        !LL_USART_IsActiveFlag_ORE(USART3)  &&  uartBufCounter)  || (!uartBufCounter && longLowDetectedCount==LONG_DETECTIONS) )
   {
-     LED_OK_TOGGLE;
      dataBuffer[uartBufCounter] = LL_USART_ReceiveData8(USART3);
      uartBufCounter++;
   }
@@ -217,7 +220,12 @@ void USART3_IRQHandler(void)
     }
     else if(LL_USART_IsActiveFlag_NE(USART3))
     {
-      (void) USART3->RDR;
+        if(counter > TIMER_2_5_USEC_INTERVAL && longLowDetectedCount==LONG_DETECTIONS)
+        {
+            dataBuffer[uartBufCounter] = LL_USART_ReceiveData8(USART3);
+            uartBufCounter++;
+        }else
+            (void) USART3->RDR;
     }
   }
   

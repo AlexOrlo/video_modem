@@ -66,7 +66,7 @@
   /* prescaler 256 (devices STM32F30xx), sampling time 7.5 ADC clock cycles,  */
   /* resolution 12 bits.                                                      */
   /* Unit: ms                                                                 */
-  #define ADC_CALIBRATION_TIMEOUT         ( 10U)
+  #define ADC_CALIBRATION_TIMEOUT         ( 100U)
   #define ADC_ENABLE_TIMEOUT              (  2U)
   #define ADC_DISABLE_TIMEOUT             (  2U)
   #define ADC_STOP_CONVERSION_TIMEOUT     ( 11U)
