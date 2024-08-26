@@ -10,7 +10,9 @@
 
 
 #define TIMER_27_USEC_INTERVAL    300   
-#define TIMER_2_5_USEC_INTERVAL   15       
+#define TIMER_2_5_USEC_INTERVAL   15     
+
+void init_cli_mode();
     
 static void stopVideoSystemDetection();
 static void raisingVblank(void);
@@ -22,6 +24,7 @@ extern TIM_HandleTypeDef htim3; //timer for vblanc periods calculation
 extern COMP_HandleTypeDef hcomp1;
 extern DAC_HandleTypeDef hdac;
 extern UART_HandleTypeDef huart3;
+extern UART_HandleTypeDef huart1;
 
 volatile uint32_t counter;
 
@@ -121,7 +124,8 @@ static void stopVideoSystemDetection(){
     }
     else
     {
-        //error
+        //Video signal is disconnected, go to CLI mode
+        init_cli_mode();
     }
     inTest=false;
 }

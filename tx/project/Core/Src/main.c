@@ -34,7 +34,7 @@ static void MX_COMP1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_OPAMP1_Init(void);
 static void MX_OPAMP3_Init(void);
-static void MX_USART1_UART_Init(void);
+static void MX_USART1_UART_Init(void); 
 static void MX_USART3_UART_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_ADC1_Init(void);
@@ -63,17 +63,6 @@ int main(void)
     MX_ADC1_Init();
     MX_USART3_UART_Init();
     flash_init();
-    
-    HAL_Delay(500);
-    HAL_ADC_Start(&hadc1); 
-    HAL_ADC_PollForConversion(&hadc1, 100); 
-    uint32_t a = HAL_ADC_GetValue(&hadc1);
-    HAL_ADC_Stop(&hadc1);
-    if(a>3000)
-    {
-        CLI_Mode = true;
-        shell_init(&huart1);
-    }
     
     MX_USART1_UART_Init();
     __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
@@ -110,6 +99,23 @@ int main(void)
     }
 }
 
+void init_cli_mode(){
+    HAL_UART_DMAStop(&huart1);
+    HAL_UART_DeInit(&huart1);
+    huart1.Init.BaudRate = 115200;
+    HAL_UART_Init(&huart1);
+    __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+    __HAL_DMA_ENABLE_IT (&hdma_usart1_rx, DMA_IT_TC);
+    HAL_UART_Receive_DMA(&huart1, (uint8_t*)dma_rx_bufu1, DMA_BUF_SIZE_U1);
+    __HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+    __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
+    
+    CLI_Mode = true;
+    shell_init(&huart1);
+    
+    char* text = "CLI mode \r";
+    HAL_UART_Transmit(&huart1, (unsigned char*)text, 10, 1000);  
+}
 
 
 __attribute__ ((section("CCM_DATA")))
@@ -387,13 +393,10 @@ static void MX_ADC1_Init(void)
 }
 
 
-static void MX_USART1_UART_Init(void)
+void MX_USART1_UART_Init(void)
 {
-  uint32_t uSpeed;
-  if(CLI_Mode) uSpeed = 115200;
-  else uSpeed = setting.uart_speed;
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = uSpeed;
+  huart1.Init.BaudRate = setting.uart_speed;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
