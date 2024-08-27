@@ -203,30 +203,15 @@ void USART3_IRQHandler(void)
 {
   if(   (LL_USART_IsActiveFlag_RXNE(USART3) &&   LL_USART_IsEnabledIT_RXNE(USART3) &&
        !LL_USART_IsActiveFlag_FE(USART3)   &&  !LL_USART_IsActiveFlag_NE(USART3) && 
-       !LL_USART_IsActiveFlag_ORE(USART3)  &&  uartBufCounter)  || (!uartBufCounter && longLowDetectedCount==LONG_DETECTIONS) )
+       !LL_USART_IsActiveFlag_ORE(USART3)  &&  uartBufCounter)  || (!uartBufCounter && longLowDetectedCount==LONG_DETECTIONS) ||
+    (LL_USART_IsEnabledIT_RXNE(USART3) && LL_USART_IsActiveFlag_NE(USART3)) )
   {
      dataBuffer[uartBufCounter] = LL_USART_ReceiveData8(USART3);
      uartBufCounter++;
   }
   else
   {
-    if(LL_USART_IsActiveFlag_ORE(USART3))
-    {
-      (void) USART3->RDR;
-    }
-    else if(LL_USART_IsActiveFlag_FE(USART3))
-    {
-      (void) USART3->RDR;
-    }
-    else if(LL_USART_IsActiveFlag_NE(USART3))
-    {
-        if(counter > TIMER_2_5_USEC_INTERVAL && longLowDetectedCount==LONG_DETECTIONS)
-        {
-            dataBuffer[uartBufCounter] = LL_USART_ReceiveData8(USART3);
-            uartBufCounter++;
-        }else
-            (void) USART3->RDR;
-    }
+    (void) USART3->RDR;
   }
   
   LL_USART_Disable(USART3);
