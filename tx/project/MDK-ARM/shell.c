@@ -14,6 +14,7 @@ volatile char shell_text_argument_string[15] = {0};
 extern volatile settingT setting;
 
 static void shell_take_action();
+static void change_boolean_parameter(bool* ptr, bool value);
 
 
 static void sendStringToCom(char s[]){
@@ -126,135 +127,74 @@ static void shell_take_action(){
   
   else if(strncmp(MAVLINK_MSG_ON, (void *)shell_command_string, 10) == 0){  
       if(strncmp(SYS_STATUS, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.sys_status=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.sys_status, true);
       }else if(strncmp(SCALED_IMU, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.scaled_imu=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.scaled_imu, true);
       }else if(strncmp(ATTITUDE, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.attitude=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.attitude, true);;
       }else if(strncmp(GLOBAL_POSITION_INT, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.global_position_int=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.global_position_int, true);
       }else if(strncmp(VFR_HUD, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.vfr_hud=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.vfr_hud, true);
       }else if(strncmp(ALTITUDE, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.altitude=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.altitude, true);
       }else if(strncmp(HIGH_LATENCY2, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.high_latency2=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.high_latency2, true);
       }
   }
   
   
   else if(strncmp(MAVLINK_MSG_OFF, (void *)shell_command_string, 10) == 0){  
       if(strncmp(SYS_STATUS, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.sys_status=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.sys_status, false);
       }else if(strncmp(SCALED_IMU, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.scaled_imu=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.scaled_imu, false);
       }else if(strncmp(ATTITUDE, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.attitude=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.attitude, false);;
       }else if(strncmp(GLOBAL_POSITION_INT, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.global_position_int=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.global_position_int, false);
       }else if(strncmp(VFR_HUD, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.vfr_hud=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.vfr_hud, false);
       }else if(strncmp(ALTITUDE, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.altitude=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.altitude, false);
       }else if(strncmp(HIGH_LATENCY2, (void *)shell_text_argument_string, 6) == 0){
-          setting.mav_msges.high_latency2=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.mav_msges.high_latency2, false);
       }
   }
-  
-  
-  
-  
   
   else if(strncmp(CRSF_MSG_ON, (void *)shell_command_string, 11) == 0){  
       if(strncmp(CRSF_VARIO, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.vario=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.vario, true);
       }else if(strncmp(CRSF_BARO_ALT, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.baro_alt=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.baro_alt, true);
       }else if(strncmp(CRSF_GPS, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.gps=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.gps, true);
       }else if(strncmp(CRSF_LINK, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.link=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.link, true);
       }else if(strncmp(CRSF_BATTERY, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.battery=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.battery, true);
       }else if(strncmp(CRSF_ATTITUDE, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.attitude=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.attitude, true);
       }else if(strncmp(CRSF_FLIGHT_MODE, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.flight_mode=true;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.flight_mode, true);
       }
   }
   
-  
   else if(strncmp(CRSF_MSG_OFF, (void *)shell_command_string, 11) == 0){  
       if(strncmp(CRSF_VARIO, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.vario=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.vario, false);
       }else if(strncmp(CRSF_BARO_ALT, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.baro_alt=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.baro_alt, false);
       }else if(strncmp(CRSF_GPS, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.gps=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.gps, false);
       }else if(strncmp(CRSF_LINK, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.link=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.link, false);
       }else if(strncmp(CRSF_BATTERY, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.battery=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.battery, false);
       }else if(strncmp(CRSF_ATTITUDE, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.attitude=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.attitude, false);
       }else if(strncmp(CRSF_FLIGHT_MODE, (void *)shell_text_argument_string, 3) == 0){
-          setting.crsf_frames.flight_mode=false;
-          FLASH_WriteSettings();
-          sendStringToCom("ok \r");
+          change_boolean_parameter((bool*)&setting.crsf_frames.flight_mode, false);
       }
   }
   
@@ -263,7 +203,6 @@ static void shell_take_action(){
       FLASH_WriteSettings();
       sendStringToCom("Uart speed changed \r");
   }
-  
   
   else if(strncmp(GET_STATUS, (void *)shell_command_string, 10) == 0){  
       sendIntToCom ("uart speed is", setting.uart_speed);
@@ -315,3 +254,8 @@ static void shell_take_action(){
   
 }
 
+static void change_boolean_parameter(bool* ptr, bool value){
+    	*ptr=value;
+	FLASH_WriteSettings();
+        sendStringToCom("ok \r")
+}
